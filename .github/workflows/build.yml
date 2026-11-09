@@ -1,0 +1,34 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.27.2
+
+    - name: No formatting changes
+      run: |
+        make format
+        git diff --exit-code
+
+    - name: Setup golangci-lint
+      uses: golangci/golangci-lint-action@v9
+      with:
+        version: v2.14.0
+
+    - name: Linter passes
+      run: make linters
+
+    - name: Test
+      run: make test
